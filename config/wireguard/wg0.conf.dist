@@ -1,0 +1,13 @@
+# This is an example config file
+# In this folder, create a "wg0.conf" to get started
+
+[Interface]
+MTU = 1392
+PrivateKey = QWERTY
+Address = 10.10.0.0/22
+DNS = 192.168.100.1
+
+[Peer]
+PublicKey = QWERTY
+AllowedIPs = 192.168.100.0/24,10.10.0.0/22
+Endpoint = wireguard-server.nl:51820

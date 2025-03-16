@@ -1,0 +1,6 @@
+config/
+Dockerfile
+.gitignore
+.dockerignore
+compose.yml
+compose.override.yml

@@ -1,0 +1,15 @@
+services:
+  wgts:
+    image: rinkp/wireguard-tailscale:stable
+    volumes:
+      - ./config/wireguard:/etc/wireguard/config
+      - ./config/tailscale:/var/lib/tailscale
+      - /lib/modules:/lib/modules
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.forwarding=1
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1

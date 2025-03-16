@@ -1,0 +1,4 @@
+/tailscale/
+/config/wireguard/*.conf
+/config/tailscale/
+/compose.override.yml

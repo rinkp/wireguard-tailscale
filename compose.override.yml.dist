@@ -1,0 +1,9 @@
+services:
+  wgts:
+    hostname: wg-tailscale-example
+    build: ./
+    environment:
+      - TS_LOGIN_SERVER=
+      - TS_AUTHKEY=
+      - WGTS_TEST_IP=
+      - WGTS_TEST_PORT=
