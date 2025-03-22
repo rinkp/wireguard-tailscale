@@ -21,6 +21,10 @@ This setup has been tested against a server running Juan Font's headscale [v0.25
 
 This setup has been tested with Windscribe VPN provider. You can generate a Wireguard config on [https://windscribe.com/getconfig/wireguard](https://windscribe.com/getconfig/wireguard).
 
+## Build
+1. Clone this repository including submodules: `git clone --recurse-submodules https://github.com/rinkp/wireguard-tailscale.git`
+2. Build using `docker compose build`
+
 ## Setup
 1. Create the necessary `compose.yml` and `compose.override.yml` files
 2. In the `config/wireguard` folder, create a `wg0.conf` config file
