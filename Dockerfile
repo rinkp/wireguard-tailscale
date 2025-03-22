@@ -48,4 +48,4 @@ RUN chmod +x ./run.sh; chmod +x ./updatestate.sh
 VOLUME /etc/wireguard/config
 EXPOSE 41641/udp
 
-ENTRYPOINT ./run.sh
+ENTRYPOINT  ["./run.sh"]

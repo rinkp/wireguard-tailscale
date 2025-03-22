@@ -1,7 +1,7 @@
 services:
   wgts:
     hostname: wg-tailscale-example
-    build: ./
+    #build: ./
     environment:
       - TS_LOGIN_SERVER=
       - TS_AUTHKEY=

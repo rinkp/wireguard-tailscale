@@ -2,7 +2,7 @@
 This repository provides a small docker image that allows connecting wireguard tunnels to a tailnet. 
 
 Example use cases:
-- Use any commercial VPN with wireguard support as **exit node** (similar to using [Mullvad](https://tailscale.com/kb/1258/mullvad-exit-nodes))
+- Use any commercial VPN with wireguard support as **exit node** (similar to tailscale.com's support for [Mullvad](https://tailscale.com/kb/1258/mullvad-exit-nodes))
 - Connect a your tailnet with a remote router that does not support tailscale (several router brands support wireguard out of the box)
 - Use a wireguard VPN while simultaneously allowing connections to your tailnet (e.g. on Android which has a limitation for 1 VPN client)
 
