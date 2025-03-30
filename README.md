@@ -50,3 +50,16 @@ When using headscale, perform the following steps:
 | `WGTS_TEST_PORT`      | `443`                                | Optional, port for the above                                                                                                      |
 | `WGTS_ALWAYS_UP`      | `False`                              | Optional, when ¨True¨ always enables tailscale and advertises the ¨TS_ADVERTISE_ROUTES¨ routes, even when wireguard does not work |
 | `WGTS_CHECK_INTERVAL` | `300`                                | Optional, how frequently to check status of wireguard tunnel (in sec)                                                             |
+
+## Included work / Licenses
+This image includes several other tools.
+
+### Tailscale
+This repository includes a submodule and will build the `tailscale` CLI and 
+`tailscaled` daemon from [tailscale/tailscale](https://github.com/tailscale/tailscale). 
+
+License: BSD 3-Clause, copy [here](https://github.com/tailscale/tailscale/blob/main/LICENSE)
+
+### Wireguard
+During build, `wireguard-tools-wg-quick` will be installed. Wireguard licenses 
+can be found [here](https://www.wireguard.com/#license).
