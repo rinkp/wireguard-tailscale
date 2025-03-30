@@ -1,0 +1,5 @@
+{
+	"name": "Default Linux Universal",
+	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+	"postCreateCommand": "git submodule update --init && cp compose.override.yml.dist compose.override.yml && sed -i 's/#build/build/g' compose.override.yml"
+}
