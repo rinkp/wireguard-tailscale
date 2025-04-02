@@ -29,7 +29,8 @@ This setup has been tested with Windscribe VPN provider. You can generate a Wire
 ## Setup
 1. Create the necessary `compose.yml` and `compose.override.yml` files
 2. In the `config/wireguard` folder, create a `wg0.conf` config file
-3. Set the `TS_AUTHKEY` and other necessary environment variables
+3. Ensure that tailscale traffic is not routed through your VPN, you may exclude those IP ranges using [a tool like this](https://www.procustodibus.com/blog/2021/03/wireguard-allowedips-calculator/)
+4. Set the `TS_AUTHKEY` and other necessary environment variables
 
 ### Set up in headscale
 When using headscale, perform the following steps:
