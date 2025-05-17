@@ -35,10 +35,31 @@ This setup has been tested with Windscribe VPN provider. You can generate a Wire
 ### Set up in headscale
 When using headscale, perform the following steps:
 
-1. Create an auth key: `headscale pre create -u server --tags=tag:wireguard-client`
-2. Start the container
-3. Enable the route: `headscale routes ls`, `headscale routes enable -r 123` replacing 123 with the ID of the route you want to enable
-4. Ensure that your `policies.json` allows one or more hosts/users to connect to destinations in your published subnets. It is not possible to publish a bigger subnet (e.g. `8.8.0.0/16`) to your tailnet and only allow traffic to a subset of the destinations (e.g. `8.8.8.0/22`). You can solve this by publishing the subnet in one or more smaller parts, either by updating your wireguard config or by using `TS_ADVERTISE_ROUTES`.
+1. Obtain list of users: `headscale users list`
+1. Create an auth key: `headscale pre create -u 1 --tags=tag:wgts-client` and set this as `TS_AUTHKEY`
+2. In your `policies.json`, add the route to the `autoApprovers`, either in `exitNode` or a specific route in `routes`.
+3. Ensure that your `policies.json` allows one or more hosts/users to connect to destinations in your published subnets. It is not possible to publish a bigger subnet (e.g. `8.8.0.0/16`) to your tailnet and only allow traffic to a subset of the destinations (e.g. `8.8.8.0/22`). You can solve this by publishing the subnet in one or more smaller parts, either by updating your wireguard config or by using `TS_ADVERTISE_ROUTES`.
+4. Start the container
+
+Example snippet from `policies.json`:
+```json
+"autoApprovers": {
+    "routes": {
+        "192.168.10.0/24":  ["tag:wgts-client"],
+    },
+    "exitNode": ["tag:wgts-exit"],
+},
+"hosts": {
+    "net-example": "192.168.10.0/24",
+},
+"acls": [
+    {
+        "action": "accept",
+        "src":    ["group:wgts-users"],
+        "dst":    ["net-example:*"],
+    },
+]
+```
 
 ### Environment variables
 
