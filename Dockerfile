@@ -45,6 +45,7 @@ COPY *.sh ./
 COPY sysctl/ /etc/sysctl.d/
 RUN chmod +x ./run.sh; chmod +x ./updatestate.sh
 
+HEALTHCHECK --interval=10s --timeout=10s --start-period=5m --retries=3 CMD [ "grep", "-E", "^0$", "/tmp/wgts-status" ]
 VOLUME /etc/wireguard/config
 EXPOSE 41641/udp
 

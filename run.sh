@@ -9,7 +9,7 @@ set -e
 tailscaled --statedir="$TS_STATE_DIR" $TS_TAILSCALED_EXTRA_ARGS &
 
 # Attempt logging in if not signed in; exit if that fails (allow for 5min delay)
-tailscale status | grep 'Logged out.' && (tailscale up --force-reauth --login-server="$TS_LOGIN_SERVER" --auth-key="$TS_AUTHKEY" --accept-routes="$TS_ACCEPT_ROUTES" --timeout=300s $TS_EXTRA_ARGS || exit 1)
+tailscale status | grep 'Logged out.' && (tailscale up --reset --force-reauth --login-server="$TS_LOGIN_SERVER" --auth-key="$TS_AUTHKEY" --accept-routes="$TS_ACCEPT_ROUTES" --timeout=300s $TS_EXTRA_ARGS || exit 1)
 
 # If tailscale is up, go down for a bit
 tailscale status && tailscale down

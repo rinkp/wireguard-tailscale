@@ -10,6 +10,7 @@ if [ "${WGTS_ALWAYS_UP}" == "True" ]; then
   echo "[WGTS] Tailscale should always be up, skipping checks and setting routes from TS_ADVERTISE_ROUTES: ${TS_ADVERTISE_ROUTES}"
   tailscale set --advertise-routes="$TS_ADVERTISE_ROUTES" --accept-routes=false
   tailscale status &> /dev/null || tailscale up
+  echo "0" > /tmp/wgts-status
   exit 0
 fi
 
@@ -18,6 +19,7 @@ wg show wg0 peers &> /dev/null
 if [ $? -eq 1 ]; then
     echo "[WGTS] Wireguard is down, setting tailscale down, not updating advertised routes"
     tailscale down
+    echo "1" > /tmp/wgts-status
     exit 0
 fi
 
@@ -29,6 +31,7 @@ if [[ -n "${WGTS_TEST_IP}" && -n "${WGTS_TEST_PORT}" ]]; then
   if [ $? -eq 1 ]; then
     echo "[WGTS] TCP port ${WGTS_TEST_IP}:${WGTS_TEST_PORT} could not be reached, assuming network is down; tailscale down"
     tailscale down
+    echo "1" > /tmp/wgts-status
     exit 1
   fi
 fi
@@ -49,3 +52,7 @@ fi
 
 echo "[WGTS] Wireguard is up, setting tailscale up"
 tailscale status &> /dev/null || tailscale up
+
+# Obtain the real status of tailscale+wireguard and store it (0 is up)
+tailscale netcheck | grep 'IPv4: yes' &> /dev/null && wg show wg0 peers &> /dev/null
+echo $? > /tmp/wgts-status
