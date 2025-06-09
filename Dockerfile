@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS ts-build
+FROM golang:1.24-alpine3.22 AS ts-build
 WORKDIR /go/src/tailscale
 
 COPY tailscale/go.mod tailscale/go.sum ./
@@ -15,10 +15,10 @@ RUN go install \
     github.com/mdlayher/netlink
 
 COPY tailscale/ ./
-RUN go build -o tailscaled -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion,ts_omit_ssh,ts_omit_wakeonlan,ts_omit_capture -ldflags "-w -s" ./cmd/tailscaled
+RUN go build -o tailscaled -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion,ts_omit_completion_scripts,ts_omit_desktop_sessions,ts_omit_ssh,ts_omit_wakeonlan,ts_omit_capture,ts_omit_relayserver,ts_omit_taildrop,ts_omit_tpm -ldflags "-w -s" ./cmd/tailscaled
 
 # This is the final container
-FROM alpine:latest
+FROM alpine:3.22.0
 
 RUN apk add --no-cache --update wireguard-tools-wg-quick iptables ip6tables
 
