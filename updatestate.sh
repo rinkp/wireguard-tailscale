@@ -14,10 +14,11 @@ if [ "${WGTS_ALWAYS_UP}" == "True" ]; then
   exit 0
 fi
 
-# If the wireguard is DOWN, tailscale shall follow
+# If the wireguard is DOWN, tailscale should stop advertising routes and go down
 wg show wg0 peers &> /dev/null
 if [ $? -eq 1 ]; then
-    echo "[WGTS] Wireguard is down, setting tailscale down, not updating advertised routes"
+    echo "[WGTS] Wireguard is down, stop advertising routes and go down"
+    tailscale set --advertise-routes="" --advertise-exit-node=false
     tailscale down
     echo "1" > /tmp/wgts-status
     exit 0
@@ -29,7 +30,8 @@ fi
 if [[ -n "${WGTS_TEST_IP}" && -n "${WGTS_TEST_PORT}" ]]; then
   nc -z -w10 "${WGTS_TEST_IP}" "${WGTS_TEST_PORT}"
   if [ $? -eq 1 ]; then
-    echo "[WGTS] TCP port ${WGTS_TEST_IP}:${WGTS_TEST_PORT} could not be reached, assuming network is down; tailscale down"
+    echo "[WGTS] TCP port ${WGTS_TEST_IP}:${WGTS_TEST_PORT} could not be reached, assuming network is down; stop advertising routes and go down"
+    tailscale set --advertise-routes="" --advertise-exit-node=false
     tailscale down
     echo "1" > /tmp/wgts-status
     exit 1

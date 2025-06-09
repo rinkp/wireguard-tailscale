@@ -29,7 +29,7 @@ ENV TS_TAILSCALED_EXTRA_ARGS="--no-logs-no-support --tun=userspace-networking" \
     TS_ACCEPT_ROUTES=False \
     TS_ADVERTISE_ROUTES="" \
     TS_EXTRA_ARGS="--accept-dns=false --netfilter-mode=off" \
-    WGTS_TEST_HOST="google.com" \
+    WGTS_TEST_HOST="example.com" \
     WGTS_TEST_PORT="443" \
     WGTS_ALWAYS_UP=False \
     WGTS_CHECK_INTERVAL=300 \
