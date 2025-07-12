@@ -2,25 +2,27 @@ FROM golang:1.24-alpine3.22 AS ts-build
 WORKDIR /go/src/tailscale
 
 COPY tailscale/go.mod tailscale/go.sum ./
-RUN go mod download
-
-RUN go install \
-    github.com/aws/aws-sdk-go-v2/aws \
-    github.com/aws/aws-sdk-go-v2/config \
-    gvisor.dev/gvisor/pkg/tcpip/adapters/gonet \
-    gvisor.dev/gvisor/pkg/tcpip/stack \
-    golang.org/x/crypto/ssh \
-    golang.org/x/crypto/acme \
-    github.com/coder/websocket \
-    github.com/mdlayher/netlink
+RUN --mount=type=cache,target=/go/pkg,sharing=locked \
+    go mod download && \
+    go install \
+        github.com/aws/aws-sdk-go-v2/aws \
+        github.com/aws/aws-sdk-go-v2/config \
+        gvisor.dev/gvisor/pkg/tcpip/adapters/gonet \
+        gvisor.dev/gvisor/pkg/tcpip/stack \
+        golang.org/x/crypto/ssh \
+        golang.org/x/crypto/acme \
+        github.com/coder/websocket \
+        github.com/mdlayher/netlink
 
 COPY tailscale/ ./
-RUN go build -o tailscaled -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion,ts_omit_completion_scripts,ts_omit_desktop_sessions,ts_omit_ssh,ts_omit_wakeonlan,ts_omit_capture,ts_omit_relayserver,ts_omit_taildrop,ts_omit_tpm -ldflags "-w -s" ./cmd/tailscaled
+RUN --mount=type=cache,target=/go/pkg,sharing=locked \
+    go build -o tailscaled -trimpath -buildvcs=false -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion,ts_omit_completion_scripts,ts_omit_desktop_sessions,ts_omit_ssh,ts_omit_wakeonlan,ts_omit_capture,ts_omit_relayserver,ts_omit_taildrop,ts_omit_tpm -ldflags "-w -s -buildid=" ./cmd/tailscaled
 
 # This is the final container
 FROM alpine:3.22.0
 
-RUN apk add --no-cache --update wireguard-tools-wg-quick iptables ip6tables
+RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
+    apk add wireguard-tools-wg-quick iptables ip6tables
 
 ENV TS_TAILSCALED_EXTRA_ARGS="--no-logs-no-support --tun=userspace-networking" \
     TS_STATE_DIR=/var/lib/tailscale \
