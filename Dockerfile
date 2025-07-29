@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
     go build -o tailscaled -trimpath -buildvcs=false -tags ts_include_cli,ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube,ts_omit_completion,ts_omit_completion_scripts,ts_omit_desktop_sessions,ts_omit_ssh,ts_omit_wakeonlan,ts_omit_capture,ts_omit_relayserver,ts_omit_taildrop,ts_omit_tpm -ldflags "-w -s -buildid=" ./cmd/tailscaled
 
 # This is the final container
-FROM alpine:3.22.0
+FROM alpine:3.22
 
 RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
     apk add wireguard-tools-wg-quick iptables ip6tables
