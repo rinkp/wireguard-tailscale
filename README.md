@@ -21,6 +21,8 @@ This setup has been tested against a server running Juan Font's headscale [v0.25
 
 This setup has been tested with Windscribe VPN provider. You can generate a Wireguard config on [https://windscribe.com/getconfig/wireguard](https://windscribe.com/getconfig/wireguard).
 
+This setup has been tested with a `wg0.conf` file having 1 endpoint and 1 peer. When multiple peers are present, the `AllowedIPs` are combined for the purposes of advertising routes. Likely, you want to set `TS_ADVERTISE_ROUTES` manually. See also [GH-2](https://github.com/rinkp/wireguard-tailscale/issues/2).
+
 ## Build
 1. Clone this repository including submodules: `git clone --recurse-submodules https://github.com/rinkp/wireguard-tailscale.git`
 2. Copy `compose.override.yml.dist` to `compose.override.yml` and uncomment the `build:` line 

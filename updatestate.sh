@@ -40,7 +40,7 @@ fi
 
 # If we don't know the routes, we can deduct these from wireguard output
 if [[ -z "${TS_ADVERTISE_ROUTES}" ]]; then
-  export TS_ADVERTISE_ROUTES=$(wg show wg0 allowed-ips | sed -e 's/^.*=\t//' | sed -e 's/\s\+/,/g')
+  export TS_ADVERTISE_ROUTES=$(wg show wg0 allowed-ips | sed -e 's/^.*=\t//' | tr '\n' ' ' | sed -E 's/([[:blank:]]+)(\w)/,\2/g' | tr ' ' '\n')
   echo "[WGTS] Discovered routes: ${TS_ADVERTISE_ROUTES}"
 fi
 
