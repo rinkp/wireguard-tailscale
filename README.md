@@ -17,7 +17,7 @@ Please note that any docker container running this image requires:
 When using the provided [`docker-compose.yml`](https://raw.githubusercontent.com/rinkp/osticket-dockerized/main/docker-compose.yml), these settings are automatically set.
 
 ## Compatibility
-This setup has been tested against a server running Juan Font's headscale [v0.25.1](https://github.com/juanfont/headscale/releases/tag/v0.25.1). It is expected to work with tailscale.com.
+This setup has been tested against a server running Juan Font's headscale [v0.25.1](https://github.com/juanfont/headscale/releases/tag/v0.25.1). It is expected to work with tailscale.com and some instructions have been provided below.
 
 This setup has been tested with Windscribe VPN provider. You can generate a Wireguard config on [https://windscribe.com/getconfig/wireguard](https://windscribe.com/getconfig/wireguard).
 
@@ -62,6 +62,15 @@ Example snippet from `policies.json`:
     },
 ]
 ```
+
+### Set up in tailscale.com
+When using tailscale.com, perform the following steps:
+
+1. Create an auth key on https://login.tailscale.com/admin/settings/keys (with appropriate tags)
+2. Optional: in your `policies.json`, add the route(s) to the `autoApprovers`
+3. Ensure that your `policies.json` allows one or more hosts/users to connect to destinations in your published subnets. It is not possible to publish a bigger subnet (e.g. `8.8.0.0/16`) to your tailnet and only allow traffic to a subset of the destinations (e.g. `8.8.8.0/22`). You can solve this by publishing the subnet in one or more smaller parts, either by updating your wireguard config or by using `TS_ADVERTISE_ROUTES`.
+4. Start the container
+5. If you skipped step 2, approve the new subnets for the node. This can be recognised by the `This machine has unapproved routes.` remark.
 
 ### Environment variables
 
