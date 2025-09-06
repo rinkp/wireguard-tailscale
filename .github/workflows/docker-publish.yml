@@ -20,7 +20,16 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    name: Build ${{ github.ref_name }} for ${{ matrix.platform }}
+    strategy:
+      max-parallel: 2
+      fail-fast: true
+      matrix:
+        platform: ["linux/amd64", "linux/arm64"]
+    outputs:
+      digest_amd: ${{ steps.store_digest.outputs.digest_linux-amd64 }}
+      digest_arm: ${{ steps.store_digest.outputs.digest_linux-arm64 }}
     permissions:
       contents: read
       id-token: write
@@ -56,29 +65,29 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKERHUB_PAT }}
 
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
-        id: build-and-push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64 #,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          platforms: ${{ matrix.platform }}
+          outputs: push-by-digest=true,name-canonical=true,type=image,push=${{ github.event_name != 'pull_request' }}
+          tags: ${{ github.repository }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: mode=max
           sbom: true
+
+      - name: Store digest in output
+        id: store_digest
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          platform="${{ matrix.platform }}"
+          digest="${{ steps.build.outputs.digest }}"
+          echo "digest_${platform//\//-}=${digest#sha256:}" >> "$GITHUB_OUTPUT"
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
@@ -90,7 +99,44 @@ jobs:
       #  env:
       #    # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
       #    TAGS: ${{ steps.meta.outputs.tags }}
-      #    DIGEST: ${{ steps.build-and-push.outputs.digest }}
+      #    DIGEST: ${{ steps.build.outputs.digest }}
       #  # This step uses the identity token to provision an ephemeral certificate
       #  # against the sigstore community Fulcio instance.
       #  run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+  publish:
+    runs-on: ubuntu-24.04
+    name: Publish ${{ github.ref_name }}
+    if: github.event_name != 'pull_request'
+    needs: build
+    steps:
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKERHUB_PAT }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Get Docker meta (for tags)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ${{ github.repository }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+
+      - name: Create manifest list and push
+        run: |
+          digests="${{ github.repository }}@sha256:${{ needs.build.outputs.digest_amd }} sha256:${{ needs.build.outputs.digest_arm }}"
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $digests
