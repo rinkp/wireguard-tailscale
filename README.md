@@ -31,7 +31,7 @@ This setup has been tested with a `wg0.conf` file having 1 endpoint and 1 peer. 
 ## Setup
 1. Create the necessary `compose.yml` and `compose.override.yml` files
 2. In the `config/wireguard` folder, create a `wg0.conf` config file
-3. Ensure that tailscale traffic is not routed through your VPN, you may exclude those IP ranges using [a tool like this](https://www.procustodibus.com/blog/2021/03/wireguard-allowedips-calculator/)
+3. Ensure that tailscale traffic is not routed through your VPN, you may exclude those IP ranges using `WGTS_AUTO_ROUTE` or a tool like [this](https://www.procustodibus.com/blog/2021/03/wireguard-allowedips-calculator/)
 4. Set the `TS_AUTHKEY` and other necessary environment variables
 
 ### Set up in headscale
@@ -82,6 +82,7 @@ When using tailscale.com, perform the following steps:
 | `WGTS_TEST_HOST`      | `google.com`                         | Optional, host to verify that the wireguard connection is working (make sure this host is in an accepted wireguard route)         |
 | `WGTS_TEST_PORT`      | `443`                                | Optional, port for the above                                                                                                      |
 | `WGTS_ALWAYS_UP`      | `False`                              | Optional, when ¨True¨ always enables tailscale and advertises the ¨TS_ADVERTISE_ROUTES¨ routes, even when wireguard does not work |
+| `WGTS_AUTO_ROUTE`     | `True`                               | Optional, when ¨True¨ automatically excludes the wireguard and tailscale hosts from being routed over the Wireguard tunnel        |
 | `WGTS_CHECK_INTERVAL` | `300`                                | Optional, how frequently to check status of wireguard tunnel (in sec)                                                             |
 
 ## Included work / Licenses

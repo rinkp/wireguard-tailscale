@@ -2,6 +2,23 @@
 
 set -e
 
+# For now IPv4-only
+route_outside_wireguard()
+{
+  default_route=$(ip -4 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
+  nslookup $1 | \
+    grep "Address" | tail -n +2 | sed -e 's/Address:[[:space:]]\+//g' | grep -v : | \
+    xargs -n1 ip -4 route add $default_route
+  
+  # If IPv6 default route present
+  default_route6=$(ip -6 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
+  if [[ ! -z "${default_route6}" ]]; then
+    nslookup $1 | \
+      grep "Address" | tail -n +2 | sed -e 's/Address:[[:space:]]\+//g' | grep : | \
+      xargs -n1 ip -6 route add $default_route6
+  fi
+}
+
 # Userspace networking for tailscale is used by default to ensure broad compatibility
 # See https://tailscale.com/kb/1177/kernel-vs-userspace-routers
 # This container still requires NET_ADMIN because of wireguard
@@ -13,6 +30,16 @@ tailscale status | grep 'Logged out.' && (tailscale up --reset --force-reauth --
 
 # If tailscale is up, stop advertising routes, then go down
 tailscale status && tailscale set --advertise-routes="" --advertise-exit-node=false && tailscale down
+
+# Add routes to ensure that tailscale/wireguard traffic goes outside the wireguard tunnel
+if [ "${WGTS_AUTO_ROUTE}" == "True" ]; then
+  hostname_logon_server=$(echo $TS_LOGIN_SERVER | sed 's/https:\/\///g')
+  route_outside_wireguard $hostname_logon_server
+
+  cat "/etc/wireguard/config/$WG_INTERFACE.conf" | grep Endpoint | \
+    sed 's/Endpoint[[:space:]]*=[[:space:]]*//g' | cut -d: -f1 | \
+    while IFS= read -r hostname; do route_outside_wireguard $hostname; done
+fi
 
 # Attempt to start wireguard
 cp "/etc/wireguard/config/$WG_INTERFACE.conf" /etc/wireguard/wg0.conf
