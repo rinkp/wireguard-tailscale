@@ -82,7 +82,7 @@ When using tailscale.com, perform the following steps:
 | `WGTS_TEST_HOST`      | `google.com`                         | Optional, host to verify that the wireguard connection is working (make sure this host is in an accepted wireguard route)         |
 | `WGTS_TEST_PORT`      | `443`                                | Optional, port for the above                                                                                                      |
 | `WGTS_ALWAYS_UP`      | `False`                              | Optional, when ¨True¨ always enables tailscale and advertises the ¨TS_ADVERTISE_ROUTES¨ routes, even when wireguard does not work |
-| `WGTS_AUTO_ROUTE`     | `True`                               | Optional, when ¨True¨ automatically excludes the wireguard and tailscale hosts from being routed over the Wireguard tunnel        |
+| `WGTS_AUTO_ROUTE`     | `False`                              | Optional, when ¨True¨ automatically excludes the wireguard and tailscale hosts from being routed over the Wireguard tunnel        |
 | `WGTS_CHECK_INTERVAL` | `300`                                | Optional, how frequently to check status of wireguard tunnel (in sec)                                                             |
 
 ## Included work / Licenses

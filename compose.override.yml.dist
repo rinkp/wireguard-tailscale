@@ -7,3 +7,4 @@ services:
       - TS_AUTHKEY=
       - WGTS_TEST_IP=
       - WGTS_TEST_PORT=
+      - WGTS_AUTO_ROUTE=

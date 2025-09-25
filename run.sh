@@ -33,7 +33,7 @@ tailscale status && tailscale set --advertise-routes="" --advertise-exit-node=fa
 
 # Add routes to ensure that tailscale/wireguard traffic goes outside the wireguard tunnel
 if [ "${WGTS_AUTO_ROUTE}" == "True" ]; then
-  hostname_logon_server=$(echo $TS_LOGIN_SERVER | sed 's/https:\/\///g')
+  hostname_logon_server=$(echo $TS_LOGIN_SERVER | sed 's/https\?:\/\///g' | cut -d: -f1)
   route_outside_wireguard $hostname_logon_server
 
   cat "/etc/wireguard/config/$WG_INTERFACE.conf" | grep Endpoint | \
