@@ -2,7 +2,6 @@
 
 set -e
 
-# For now IPv4-only
 route_outside_wireguard()
 {
   default_route=$(ip -4 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
