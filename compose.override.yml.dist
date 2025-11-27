@@ -8,3 +8,9 @@ services:
       - WGTS_TEST_IP=
       - WGTS_TEST_PORT=
       - WGTS_AUTO_ROUTE=
+    # If you are using ephemeral nodes:
+    #volumes:
+    #  - type: tmpfs
+    #    target: /var/lib/tailscale
+    #    tmpfs:
+    #      size: "25M"
