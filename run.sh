@@ -42,8 +42,11 @@ fi
 
 # Attempt to start wireguard
 cp "/etc/wireguard/config/$WG_INTERFACE.conf" /etc/wireguard/wg0.conf
+# Add hooks for our state update
 sed -ie '/^\[Interface\]/a PostUp=/updatestate.sh' /etc/wireguard/wg0.conf
 sed -ie '/^\[Interface\]/a PreDown=/updatestate.sh' /etc/wireguard/wg0.conf
+# Don't use provided DNS configuration (tailscale clients will not use it)
+sed -ie '/^DNS=/d' /etc/wireguard/wg0.conf
 wg-quick up wg0
 
 sleep 60
