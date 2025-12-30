@@ -30,12 +30,14 @@ ENV TS_TAILSCALED_EXTRA_ARGS="--no-logs-no-support --tun=userspace-networking" \
     TS_AUTHKEY=¨¨ \
     TS_ACCEPT_ROUTES=False \
     TS_ADVERTISE_ROUTES="" \
+    TS_VERBOSE="0" \
     TS_EXTRA_ARGS="--accept-dns=false --netfilter-mode=off" \
     WGTS_AUTO_ROUTE="False" \
     WGTS_TEST_HOST="example.com" \
     WGTS_TEST_PORT="443" \
     WGTS_ALWAYS_UP=False \
     WGTS_CHECK_INTERVAL=300 \
+    WGTS_VERBOSE=False \
     WG_INTERFACE="wg0"
 
 COPY --from=ts-build /go/src/tailscale/tailscaled /usr/sbin

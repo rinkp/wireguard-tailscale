@@ -4,17 +4,17 @@ set -e
 
 route_outside_wireguard()
 {
-  default_route=$(ip -4 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
-  nslookup $1 | \
+  local default_route=$(ip -4 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
+  nslookup -query=a $1 | \
     grep "Address" | tail -n +2 | sed -e 's/Address:[[:space:]]\+//g' | grep -v : | \
-    xargs -n1 ip -4 route add $default_route
+    xargs -r -n1 ip -4 route add $default_route
   
   # If IPv6 default route present
-  default_route6=$(ip -6 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
+  local default_route6=$(ip -6 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
   if [[ ! -z "${default_route6}" ]]; then
-    nslookup $1 | \
+    nslookup -query=aaaa $1 | \
       grep "Address" | tail -n +2 | sed -e 's/Address:[[:space:]]\+//g' | grep : | \
-      xargs -n1 ip -6 route add $default_route6
+      xargs -r -n1 ip -6 route add $default_route6
   fi
 }
 
@@ -22,7 +22,7 @@ route_outside_wireguard()
 # See https://tailscale.com/kb/1177/kernel-vs-userspace-routers
 # This container still requires NET_ADMIN because of wireguard
 # It is possible to set TS_STATE_DIR to "mem:" for ephemeral mode -> may require automatic subnet route approvals
-tailscaled --statedir="$TS_STATE_DIR" $TS_TAILSCALED_EXTRA_ARGS &
+tailscaled --statedir="$TS_STATE_DIR" --verbose="$TS_VERBOSE" $TS_TAILSCALED_EXTRA_ARGS &
 
 # Attempt logging in if not signed in; exit if that fails (allow for 5min delay)
 tailscale status | grep 'Logged out.' && (tailscale up --reset --force-reauth --login-server="$TS_LOGIN_SERVER" --auth-key="$TS_AUTHKEY" --accept-routes="$TS_ACCEPT_ROUTES" --timeout=300s $TS_EXTRA_ARGS || exit 1)
