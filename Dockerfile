@@ -1,4 +1,4 @@
-FROM golang:1.25.5-alpine3.23 AS ts-build
+FROM golang:1.25-alpine3.23 AS ts-build
 WORKDIR /go/src/tailscale
 
 COPY tailscale/go.mod tailscale/go.sum ./
@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
     go build -o tailscaled -trimpath -buildvcs=false -tags ts_include_cli,ts_omit_aws,ts_omit_acme,ts_omit_bird,ts_omit_tap,ts_omit_portlist,ts_omit_resolved,ts_omit_captiveportal,ts_omit_kube,ts_omit_completion,ts_omit_completion_scripts,ts_omit_desktop_sessions,ts_omit_ssh,ts_omit_wakeonlan,ts_omit_capture,ts_omit_debugportmapper,ts_omit_portmapper,ts_omit_relayserver,ts_omit_serve,ts_omit_outboundproxy,ts_omit_bird,ts_omit_systray,ts_omit_syspolicy,ts_omit_taildrop,ts_omit_drive,ts_omit_tpm,ts_omit_doctor,ts_omit_dbus,ts_omit_capture,ts_omit_debugeventbus,ts_omit_webclient,ts_omit_linuxdnsfight,ts_omit_logtail -ldflags "-w -s -buildid=" ./cmd/tailscaled
 
 # This is the final container
-FROM alpine:3.23.2
+FROM alpine:3.23
 
 RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
     apk add wireguard-tools-wg-quick iptables ip6tables

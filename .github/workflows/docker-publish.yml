@@ -2,7 +2,7 @@ name: Build & publish Docker image
 
 on:
   schedule:
-    - cron: '30 6 * * *'
+    - cron: '30 6 * * 0'
   push:
     branches: [ "master" ]
     # Publish semver tags as releases.
@@ -135,6 +135,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+            type=raw,value=nightly,enable=${{ github.event_name == 'schedule' }}
 
       - name: Create manifest list and push
         run: |
