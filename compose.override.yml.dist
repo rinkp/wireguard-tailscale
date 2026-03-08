@@ -8,6 +8,8 @@ services:
       - WGTS_TEST_IP=
       - WGTS_TEST_PORT=
       - WGTS_AUTO_ROUTE=
+      # To use kernel routing mode, redeclare TS_TAILSCALED_EXTRA_ARGS without --tun=userspace-networking
+      #- TS_TAILSCALED_EXTRA_ARGS=--no-logs-no-support
     # If you are using ephemeral nodes:
     #volumes:
     #  - type: tmpfs

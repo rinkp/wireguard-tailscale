@@ -10,9 +10,10 @@ Example use cases:
 Please note that any docker container running this image requires:
 - the `NET_ADMIN` [capability](https://man7.org/linux/man-pages/man7/capabilities.7.html)
 - access to the `/dev/net/tun` device
-- two kernel parameters:
-    - `net.ipv6.conf.all.forwarding=1`
+- three kernel parameters:
+    - `net.ipv4.conf.all.src_valid_mark=1`
     - `net.ipv4.ip_forward=1`
+    - `net.ipv6.conf.all.forwarding=1`
 
 When using the provided [`docker-compose.yml`](https://raw.githubusercontent.com/rinkp/osticket-dockerized/main/docker-compose.yml), these settings are automatically set.
 
@@ -84,6 +85,17 @@ When using tailscale.com, perform the following steps:
 | `WGTS_ALWAYS_UP`      | `False`                              | Optional, when ¨True¨ always enables tailscale and advertises the ¨TS_ADVERTISE_ROUTES¨ routes, even when wireguard does not work |
 | `WGTS_AUTO_ROUTE`     | `False`                              | Optional, when ¨True¨ automatically excludes the wireguard and tailscale hosts from being routed over the Wireguard tunnel        |
 | `WGTS_CHECK_INTERVAL` | `300`                                | Optional, how frequently to check status of wireguard tunnel (in sec)                                                             |
+
+### Kernel mode vs userspace
+By default, Tailscale is operating in [userspace mode](https://tailscale.com/docs/reference/kernel-vs-userspace-routers) rather than kernel mode. This default is used to allow for the greatest compatibility our of the box. 
+
+It is possible to switch to kernel routing mode by overriding `TS_TAILSCALED_EXTRA_ARGS`, an example is given in `compose.override.yml`:
+
+```diff
+# To use kernel routing mode, redeclare TS_TAILSCALED_EXTRA_ARGS without --tun=userspace-networking
+- #- TS_TAILSCALED_EXTRA_ARGS=--no-logs-no-support
++ - TS_TAILSCALED_EXTRA_ARGS=--no-logs-no-support
+```
 
 ## Included work / Licenses
 This image includes several other tools.
