@@ -2,6 +2,21 @@
 
 set -e
 
+stop_handler()
+{
+    echo "[WGTS] Received SIGTERM, stopping tailscaled and wireguard"
+    pkill -TERM tailscaled &
+    wg-quick down wg0 & wg_quick_pid=$!
+    pkill -KILL sleep &
+
+    echo "[WGTS] Signals sent, waiting for tailscaled and wireguard to stop"
+    wait $tailscale_pid
+    echo "[WGTS] Stopped tailscaled, waiting for wireguard to stop"
+    wait $wg_quick_pid
+    echo "[WGTS] Stopped wireguard, exiting"
+    exit 0
+}
+
 route_outside_wireguard()
 {
   local default_route=$(ip -4 route | grep default | head -n1 | sed 's/default[[:space:]]//g')
@@ -18,11 +33,13 @@ route_outside_wireguard()
   fi
 }
 
+trap stop_handler SIGTERM
+
 # Userspace networking for tailscale is used by default to ensure broad compatibility
 # See https://tailscale.com/kb/1177/kernel-vs-userspace-routers
 # This container still requires NET_ADMIN because of wireguard
 # It is possible to set TS_STATE_DIR to "mem:" for ephemeral mode -> may require automatic subnet route approvals
-tailscaled --statedir="$TS_STATE_DIR" --verbose="$TS_VERBOSE" $TS_TAILSCALED_EXTRA_ARGS &
+(tailscaled --statedir="$TS_STATE_DIR" --verbose="$TS_VERBOSE" $TS_TAILSCALED_EXTRA_ARGS > >(sed 's/^/[tailscaled] /') 2> >(sed 's/^/[tailscaled] /' >&2)) & tailscale_pid=$!
 
 # Attempt logging in if not signed in; exit if that fails (allow for 5min delay)
 tailscale status | grep 'Logged out.' && (tailscale up --reset --force-reauth --login-server="$TS_LOGIN_SERVER" --auth-key="$TS_AUTHKEY" --accept-routes="$TS_ACCEPT_ROUTES" --timeout=300s $TS_EXTRA_ARGS || exit 1)
