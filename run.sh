@@ -94,9 +94,9 @@ fi
 
 # Start wireguard and add lookup table after tailscale
 echo "[wgts] Starting wireguard and adding routing rules"
-wg-quick up wg0 > >(sed '/wgts/!s/^/[wg] /') 2> >(sed '/wgts/!s/^/[wg] /' >&2)
 ip rule add preference 30001 from all lookup 40
 ip -6 rule add preference 30001 from all lookup 40
+wg-quick up wg0 > >(sed '/wgts/!s/^/[wg] /') 2> >(sed '/wgts/!s/^/[wg] /' >&2)
 
 if [ ! "${WGTS_VERBOSE}" = "False" ]; then
   echo "[wgts] Wireguard and tailscale started, showing status"
