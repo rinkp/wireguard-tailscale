@@ -27,6 +27,7 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
         ts_omit_cloud \
         ts_omit_completion \
         ts_omit_completion_scripts \
+        ts_omit_conn25 \
         ts_omit_dbus \
         ts_omit_debugeventbus \
         ts_omit_debugportmapper \
@@ -74,7 +75,7 @@ ENV TS_TAILSCALED_EXTRA_ARGS="--no-logs-no-support --tun=userspace-networking" \
     TS_AUTHKEY=¨¨ \
     TS_ACCEPT_ROUTES=False \
     TS_ADVERTISE_ROUTES="" \
-    TS_VERBOSE="0" \
+    TS_VERBOSE=0 \
     TS_EXTRA_ARGS="--accept-dns=false" \
     WGTS_AUTO_ROUTE="False" \
     WGTS_TEST_HOST="example.com" \

@@ -48,11 +48,24 @@ if [ "${WGTS_AUTO_ROUTE}" == "True" ]; then
   ip -6 rule add preference 30000 from all lookup 41
 fi
 
+# Because we build with ts_omit_logtail, we must filter verbosity here
+if [ -z "$TS_VERBOSE" ] || [ "$TS_VERBOSE" -le 2 ]; then
+  WGTS_VERBOSE2_FILTER="[v2]"
+else
+  WGTS_VERBOSE2_FILTER="[v99]"
+fi
+if [ -z "$TS_VERBOSE" ] || [ "$TS_VERBOSE" -le 1 ]; then
+  WGTS_VERBOSE1_FILTER="[v1]"
+else
+  WGTS_VERBOSE1_FILTER="[v99]"
+fi
+
 # Userspace networking for tailscale is used by default to ensure broad compatibility
 # See https://tailscale.com/kb/1177/kernel-vs-userspace-routers
 # This container still requires NET_ADMIN because of wireguard
 # It is possible to set TS_STATE_DIR to "mem:" for ephemeral mode -> may require automatic subnet route approvals
-(tailscaled --statedir="$TS_STATE_DIR" --verbose="$TS_VERBOSE" $TS_TAILSCALED_EXTRA_ARGS > >(sed 's/^/[tailscaled] /') 2> >(sed 's/^/[tailscaled] /' >&2)) & tailscale_pid=$!
+echo "[wgts] Starting tailscaled with state dir $TS_STATE_DIR and verbosity $TS_VERBOSE"
+(tailscaled --statedir="$TS_STATE_DIR" --verbose="$TS_VERBOSE" $TS_TAILSCALED_EXTRA_ARGS > >(grep -vF -e "$WGTS_VERBOSE1_FILTER" -e "$WGTS_VERBOSE2_FILTER" | sed 's/^\d*\/\d*\/\d*\s\d*:\d*:\d*/[tailscaled]/') 2> >(grep -vF -e "$WGTS_VERBOSE1_FILTER" -e "$WGTS_VERBOSE2_FILTER" | sed 's/^\d*\/\d*\/\d*\s\d*:\d*:\d*/[tailscaled]/' >&2)) & tailscale_pid=$!
 
 # Attempt to start wireguard
 cp "/etc/wireguard/config/$WG_INTERFACE.conf" /etc/wireguard/wg0.conf
@@ -62,11 +75,6 @@ sed -ie '/^\[Interface\]/a PreDown=/updatestate.sh' /etc/wireguard/wg0.conf
 sed -ie '/^\[Interface\]/a Table=40' /etc/wireguard/wg0.conf
 # Don't use provided DNS configuration (tailscale clients will not use it)
 sed -ie '/^DNS/d' /etc/wireguard/wg0.conf
-
-# Start wireguard and add lookup table after tailscale
-wg-quick up wg0 > >(sed 's/^/[wg] /') 2> >(sed 's/^/[wg] /' >&2)
-ip rule add preference 30001 from all lookup 40
-ip -6 rule add preference 30001 from all lookup 40
 
 # Now it is time to bring up tailscale if not done automatically yet
 while [ $(tailscale status --json | jq -r ".BackendState") = "NoState" ]; do
@@ -80,11 +88,27 @@ if [ -z $(tailscale status --json | jq -r ".Self.ID") ] || [ $(tailscale status 
     --login-server="$TS_LOGIN_SERVER" \
     --auth-key="$TS_AUTHKEY" \
     --accept-routes="$TS_ACCEPT_ROUTES" \
-    --timeout=300s $TS_EXTRA_ARGS || (echo "Could not switch Tailscale on; exiting"; exit 1)
+    --timeout=300s $TS_EXTRA_ARGS || \
+    (echo "[wgts] Could not authenticate to $TS_LOGIN_SERVER; exiting"; exit 1)
+fi
+
+# Start wireguard and add lookup table after tailscale
+echo "[wgts] Starting wireguard and adding routing rules"
+wg-quick up wg0 > >(sed '/wgts/!s/^/[wg] /') 2> >(sed '/wgts/!s/^/[wg] /' >&2)
+ip rule add preference 30001 from all lookup 40
+ip -6 rule add preference 30001 from all lookup 40
+
+if [ ! "${WGTS_VERBOSE}" = "False" ]; then
+  echo "[wgts] Wireguard and tailscale started, showing status"
+  tailscale status
+  wg show wg0
+  echo "[wgts] Showing all routes"
+  ip route list table all
 fi
 
 if [ ! $(tailscale status --json | jq -r ".BackendState") = "Running" ]; then
-  tailscale up || (echo "Could not switch Tailscale to Running; exiting"; exit 1)
+  echo "[wgts] Tailscale is not running, attempting to bring it up"
+  tailscale up || (echo "[wgts] Could not switch Tailscale to Running; exiting"; exit 1)
 fi
 
 if [ $(tailscale status --json | jq -r .BackendState) != "Running" ]; then
@@ -92,7 +116,6 @@ if [ $(tailscale status --json | jq -r .BackendState) != "Running" ]; then
   exit 1
 fi
 
-sleep 60
 # If tailscaled is stopped for whatever reason, exit the container
 while pidof tailscaled &> /dev/null; do
   sleep "$WGTS_CHECK_INTERVAL"
