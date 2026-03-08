@@ -66,7 +66,7 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
 FROM alpine:3.23
 
 RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
-    apk add wireguard-tools-wg-quick iptables ip6tables
+    apk add wireguard-tools-wg-quick iptables ip6tables jq
 
 ENV TS_TAILSCALED_EXTRA_ARGS="--no-logs-no-support --tun=userspace-networking" \
     TS_STATE_DIR=/var/lib/tailscale \
