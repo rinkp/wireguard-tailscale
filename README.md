@@ -97,3 +97,6 @@ License: BSD 3-Clause, copy [here](https://github.com/tailscale/tailscale/blob/m
 ### Wireguard
 During build, `wireguard-tools-wg-quick` will be installed. Wireguard licenses 
 can be found [here](https://www.wireguard.com/#license).
+
+## Alternatives to this project
+A similar project exists: [tailguard](https://github.com/juhovh/tailguard). See @juhovh's comment [here](https://github.com/rinkp/wireguard-tailscale/issues/2#issuecomment-3431746621) for a brief comparison. 
