@@ -43,8 +43,17 @@ if [[ -z "${TS_ADVERTISE_ROUTES}" ]]; then
 fi
 
 if [[ $TS_ADVERTISE_ROUTES == *"0.0.0.0/0"* ]]; then
-  echo "[wgts] Advertising exit node"
-  tailscale set --advertise-routes="" --advertise-exit-node --accept-routes=false
+  # remove the exit-node routes (0.0.0.0/0 & ::/0)
+  EXTRA_TS_ADVERTISE_ROUTES="${TS_ADVERTISE_ROUTES//0.0.0.0\/0/}"
+  EXTRA_TS_ADVERTISE_ROUTES="${EXTRA_TS_ADVERTISE_ROUTES//::\/0/}"
+
+  # Remove trailing, leading, or duplicate commas
+  EXTRA_TS_ADVERTISE_ROUTES="${EXTRA_TS_ADVERTISE_ROUTES//,,/,}"
+  EXTRA_TS_ADVERTISE_ROUTES="${EXTRA_TS_ADVERTISE_ROUTES#,}"
+  EXTRA_TS_ADVERTISE_ROUTES="${EXTRA_TS_ADVERTISE_ROUTES%,}"
+
+  echo "[wgts] Advertising exit node w/ \"$EXTRA_TS_ADVERTISE_ROUTES\""
+  tailscale set --advertise-routes="$EXTRA_TS_ADVERTISE_ROUTES" --advertise-exit-node=true --accept-routes=false
 else
   echo "[wgts] Advertising routes: ${TS_ADVERTISE_ROUTES}"
   tailscale set --advertise-routes="$TS_ADVERTISE_ROUTES" --advertise-exit-node=false --accept-routes=false
