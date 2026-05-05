@@ -14,6 +14,7 @@ COPY tailscale/ ./
 RUN --mount=type=cache,target=/go/pkg,sharing=locked \
     go build -o tailscaled -trimpath -buildvcs=false -tags "\
         ts_include_cli \
+        ts_omit_ace \
         ts_omit_acme \
         ts_omit_appconnectors \
         ts_omit_aws \
@@ -29,16 +30,20 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
         ts_omit_completion_scripts \
         ts_omit_conn25 \
         ts_omit_dbus \
+        ts_omit_debug \
         ts_omit_debugeventbus \
         ts_omit_debugportmapper \
         ts_omit_desktop_sessions \
         ts_omit_doctor \
         ts_omit_drive \
         ts_omit_hujsonconf \
+        ts_omit_ipnbus \
         ts_omit_kube \
+        ts_omit_linkspeed \
         ts_omit_linuxdnsfight \
         ts_omit_logtail \
         ts_omit_netlog \
+        ts_omit_networkmanager \
         ts_omit_outboundproxy \
         ts_omit_portlist \
         ts_omit_portmapper \
@@ -53,7 +58,9 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
         ts_omit_syspolicy \
         ts_omit_systray \
         ts_omit_taildrop \
+        ts_omit_tap \
         ts_omit_tpm \
+        ts_omit_tundevstats \
         ts_omit_useproxy \
         ts_omit_usermetrics \
         ts_omit_useexitnode \
