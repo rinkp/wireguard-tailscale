@@ -62,6 +62,10 @@ fi
 echo "[wgts] Wireguard is up, setting tailscale up"
 tailscale status &> /dev/null || tailscale up
 
+if [ "${WGTS_ALLOW_SHARED_ADDRESS_ROUTING}" == "True" ]; then
+  (iptables -D ts-forward -o tailscale0 -s 100.64.0.0/10 -j DROP 2> /dev/null && echo "[wgts] Allowing routing of shared addresses (100.64.0.0/10)") || true
+fi
+
 # Obtain the real status of tailscale+wireguard and store it (0 is up)
 tailscale netcheck | grep 'IPv4: yes' &> /dev/null && wg show wg0 peers &> /dev/null
 echo $? > /tmp/wgts-status

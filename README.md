@@ -75,16 +75,17 @@ When using tailscale.com, perform the following steps:
 
 ### Environment variables
 
-| **Variable**          | **Default value**                    | **Description**                                                                                                                   |
-|-----------------------|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `TS_LOGIN_SERVER`     | `https://controlplane.tailscale.com` | Optional, tailscale login server (e.g. when using headscale)                                                                      |
-| `TS_AUTHKEY`          | ` `                                  | Mandatory, auth key                                                                                                               |
-| `TS_ADVERTISE_ROUTES` | ` `                                  | Optional, forces advertising specific routes rather than using the routes from wireguard                                          |
-| `WGTS_TEST_HOST`      | `google.com`                         | Optional, host to verify that the wireguard connection is working (make sure this host is in an accepted wireguard route)         |
-| `WGTS_TEST_PORT`      | `443`                                | Optional, port for the above                                                                                                      |
-| `WGTS_ALWAYS_UP`      | `False`                              | Optional, when ¨True¨ always enables tailscale and advertises the ¨TS_ADVERTISE_ROUTES¨ routes, even when wireguard does not work |
-| `WGTS_AUTO_ROUTE`     | `False`                              | Optional, when ¨True¨ automatically excludes the wireguard and tailscale hosts from being routed over the Wireguard tunnel        |
-| `WGTS_CHECK_INTERVAL` | `300`                                | Optional, how frequently to check status of wireguard tunnel (in sec)                                                             |
+| **Variable**                        | **Default value**                    | **Description**                                                                                                                                                                                                |
+|-------------------------------------|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `TS_LOGIN_SERVER`                   | `https://controlplane.tailscale.com` | Optional, tailscale login server (e.g. when using headscale)                                                                                                                                                   |
+| `TS_AUTHKEY`                        | ` `                                  | Mandatory, auth key                                                                                                                                                                                            |
+| `TS_ADVERTISE_ROUTES`               | ` `                                  | Optional, forces advertising specific routes rather than using the routes from wireguard                                                                                                                       |
+| `WGTS_TEST_HOST`                    | `google.com`                         | Optional, host to verify that the wireguard connection is working (make sure this host is in an accepted wireguard route)                                                                                      |
+| `WGTS_TEST_PORT`                    | `443`                                | Optional, port for the above                                                                                                                                                                                   |
+| `WGTS_ALLOW_SHARED_ADDRESS_ROUTING` | `False`                              | Optional, when ¨True¨ allows routing incoming [100.64.0.0/10](https://datatracker.ietf.org/doc/html/rfc6598) traffic. E.g. if addresses are in use on your network or linking two tailscale networks together. |
+| `WGTS_ALWAYS_UP`                    | `False`                              | Optional, when ¨True¨ always enables tailscale and advertises the ¨TS_ADVERTISE_ROUTES¨ routes, even when wireguard does not work                                                                              |
+| `WGTS_AUTO_ROUTE`                   | `False`                              | Optional, when ¨True¨ automatically excludes the wireguard and tailscale hosts from being routed over the Wireguard tunnel                                                                                     |
+| `WGTS_CHECK_INTERVAL`               | `300`                                | Optional, how frequently to check status of wireguard tunnel (in sec)                                                                                                                                          |
 
 ### Kernel mode vs userspace
 By default, Tailscale is operating in [userspace mode](https://tailscale.com/docs/reference/kernel-vs-userspace-routers) rather than kernel mode. This default is used to allow for the greatest compatibility our of the box. 

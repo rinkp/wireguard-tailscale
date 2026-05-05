@@ -104,6 +104,7 @@ ENV TS_TAILSCALED_EXTRA_ARGS="--no-logs-no-support --tun=userspace-networking" \
     WGTS_AUTO_ROUTE="False" \
     WGTS_TEST_HOST="example.com" \
     WGTS_TEST_PORT="443" \
+    WGTS_ALLOW_SHARED_ADDRESS_ROUTING=False \
     WGTS_ALWAYS_UP=False \
     WGTS_CHECK_INTERVAL=300 \
     WGTS_VERBOSE=False \
