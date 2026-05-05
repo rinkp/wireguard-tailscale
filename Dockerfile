@@ -1,8 +1,12 @@
-FROM golang:1.26.2-alpine3.23 AS ts-build
+FROM dhi.io/golang:1.26.2-alpine3.23 AS ts-build
 WORKDIR /go/src/tailscale
 
+ENV GOCACHE=/go-cache \
+    GOMODCACHE=/go-modcache
+
 COPY tailscale/go.mod tailscale/go.sum ./
-RUN --mount=type=cache,target=/go/pkg,sharing=locked \
+RUN --mount=type=cache,target=/go-cache,sharing=locked,uid=65532 \
+    --mount=type=cache,target=/go-modcache,sharing=locked,uid=65532 \
     go mod download && \
     go install \
         gvisor.dev/gvisor/pkg/tcpip/adapters/gonet \
@@ -11,7 +15,8 @@ RUN --mount=type=cache,target=/go/pkg,sharing=locked \
         github.com/mdlayher/netlink
 
 COPY tailscale/ ./
-RUN --mount=type=cache,target=/go/pkg,sharing=locked \
+RUN --mount=type=cache,target=/go-cache,sharing=locked,uid=65532 \
+    --mount=type=cache,target=/go-modcache,sharing=locked,uid=65532 \
     go build -o tailscaled -trimpath -buildvcs=false -tags "\
         ts_include_cli \
         ts_omit_ace \
