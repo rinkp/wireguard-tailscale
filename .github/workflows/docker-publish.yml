@@ -21,7 +21,7 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
-    name: Build ${{ github.ref_name }} for ${{ matrix.platform }}
+    name: Build ${{ github.event_name == 'pull_request' && 'pull request' || github.ref_name }} for ${{ matrix.platform }}
     strategy:
       max-parallel: 2
       fail-fast: true
