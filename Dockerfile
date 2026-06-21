@@ -1,4 +1,4 @@
-FROM dhi.io/golang:1.26.4-alpine3.23 AS ts-build
+FROM dhi.io/golang:1.26.4-alpine3.24 AS ts-build
 WORKDIR /go/src/tailscale
 
 ENV GOCACHE=/go-cache \
@@ -76,14 +76,14 @@ RUN --mount=type=cache,target=/go-cache,sharing=locked,uid=65532 \
         -ldflags "-w -s -buildid=" ./cmd/tailscaled
 
 # Use apk.static from the alpine dev image to install packages in the final image
-# Verified working: https://dl-cdn.alpinelinux.org/alpine/v3.23/main/x86_64/apk-tools-static-3.0.6-r0.apk
-FROM dhi.io/alpine-base:3.23-alpine3.23-dev AS ts-apk
+# Verified working: https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/apk-tools-static-3.0.6-r0.apk
+FROM dhi.io/alpine-base:3.24-alpine3.24-dev AS ts-apk
 RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
     apk --no-cache fetch apk-tools-static && \
     tar -zxvf apk-tools-static-*.apk
 
 # This is the final container
-FROM dhi.io/alpine-base:3.23
+FROM dhi.io/alpine-base:3.24
 
 USER 0
 
