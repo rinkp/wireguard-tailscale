@@ -1,4 +1,4 @@
-FROM dhi.io/golang:1.26.4-alpine3.24 AS ts-build
+FROM dhi.io/golang:1.27-alpine3.24 AS ts-build
 WORKDIR /go/src/tailscale
 
 ENV GOCACHE=/go-cache \
