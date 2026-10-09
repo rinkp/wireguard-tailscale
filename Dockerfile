@@ -42,7 +42,6 @@ RUN --mount=type=cache,target=/go-cache,sharing=locked,uid=65532 \
         ts_omit_doctor \
         ts_omit_drive \
         ts_omit_hujsonconf \
-        ts_omit_ipnbus \
         ts_omit_kube \
         ts_omit_linkspeed \
         ts_omit_linuxdnsfight \
